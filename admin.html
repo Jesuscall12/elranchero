@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración | Taquería El Ranchero</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rancheroDark: '#0f0f0f',
+                        rancheroCard: '#1a1a1a',
+                        mexGreen: '#16a34a',
+                        mexRed: '#dc2626'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-rancheroDark text-slate-100 font-sans antialiased min-h-screen p-4 sm:p-8">
+    
+    <div class="max-w-7xl mx-auto">
+        <!-- Encabezado del Panel -->
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-8 border-b border-slate-800 pb-4 gap-4">
+            <div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-store text-mexRed"></i> Control de Pedidos • El Ranchero
+                </h1>
+                <p class="text-xs text-slate-400">Panel de Administración y Control Interno del Dueño</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-mexGreen/10 border border-mexGreen/30 text-mexGreen text-xs px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-inner">
+                    <i class="fa-solid fa-circle text-[8px] animate-ping"></i> Sistema en Línea
+                </div>
+                <button onclick="switchTab('active')" id="btn-tab-active" class="bg-mexRed text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow">
+                    <i class="fa-solid fa-fire-burner mr-1"></i> Pedidos Activos
+                </button>
+                <button onclick="switchTab('history')" id="btn-tab-history" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition-all">
+                    <i class="fa-solid fa-book-bookmark mr-1"></i> Historial y Ventas
+                </button>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 1: PEDIDOS ACTIVOS (COCINA) -->
+        <div id="section-active" class="space-y-6">
+            <div class="flex justify-between items-center">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-bell text-amber-400"></i> Pedidos en Proceso / Pendientes
+                </h2>
+            </div>
+            <div id="admin-orders-container" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Se carga dinámicamente -->
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: HISTORIAL Y CONTROL DE VENTAS (DUEÑO) -->
+        <div id="section-history" class="space-y-6 hidden">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-rancheroCard border border-slate-800 p-5 rounded-2xl gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-mexGreen"></i> Registro de Pedidos Entregados y Ventas
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Control histórico para llevar la contabilidad y auditoría del negocio.</p>
+                </div>
+                <div class="flex items-center gap-4 bg-rancheroDark px-5 py-3 rounded-xl border border-slate-800">
+                    <div>
+                        <span class="text-[10px] text-slate-400 block uppercase font-bold">Ventas Totales Registradas:</span>
+                        <span id="total-revenue-display" class="text-xl font-extrabold text-mexGreen">$0.00</span>
+                    </div>
+                    <button onclick="clearHistory()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold px-3 py-2 rounded-lg transition-all ml-2">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Borrar Historial
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla de Historial -->
+            <div class="bg-rancheroCard border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-900 border-b border-slate-800 text-slate-400 uppercase font-bold">
+                            <tr>
+                                <th class="p-4">Hora / Fecha</th>
+                                <th class="p-4">Cliente</th>
+                                <th class="p-4">Tipo / Ubicación</th>
+                                <th class="p-4">Detalle del Pedido</th>
+                                <th class="p-4 text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body" class="divide-y divide-slate-800">
+                            <!-- Se carga dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script de Control y Sincronización -->
+    <script>
+        let lastOrderCount = 0;
+
+        function playBeep() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = 587.33;
+                gain.gain.setValueAtTime(0.1, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.5);
+            } catch (e) {}
+        }
+
+        function switchTab(tab) {
+            const activeSec = document.getElementById('section-active');
+            const historySec = document.getElementById('section-history');
+            const btnActive = document.getElementById('btn-tab-active');
+            const btnHistory = document.getElementById('btn-tab-history');
+
+            if (tab === 'active') {
+                activeSec.classList.remove('hidden');
+                historySec.classList.add('hidden');
+                btnActive.className = "bg-mexRed text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow";
+                btnHistory.className = "bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition-all";
+                loadActiveOrders();
+            } else {
+                activeSec.classList.add('hidden');
+                historySec.classList.remove('hidden');
+                btnHistory.className = "bg-mexGreen text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow";
+                btnActive.className = "bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition-all";
+                loadSalesHistory();
+            }
+        }
+
+        function loadActiveOrders() {
+            const savedOrders = JSON.parse(localStorage.getItem('ranchero_orders')) || [];
+            const container = document.getElementById('admin-orders-container');
+
+            if (savedOrders.length > lastOrderCount && lastOrderCount !== 0) {
+                playBeep();
+            }
+            lastOrderCount = savedOrders.length;
+
+            if (savedOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="bg-rancheroCard border border-slate-800 rounded-2xl p-6 text-center text-slate-500 col-span-full py-16">
+                        <i class="fa-solid fa-receipt text-4xl mb-3 text-slate-700"></i>
+                        <p class="text-sm font-semibold">No hay pedidos pendientes en este momento.</p>
+                        <p class="text-xs text-slate-600 mt-1">Los nuevos pedidos de los clientes aparecerán aquí automáticamente.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = savedOrders.map((order, index) => `
+                <div class="bg-rancheroCard border border-slate-800 rounded-2xl p-5 shadow-2xl flex flex-col justify-between border-t-4 border-t-mexRed">
+                    <div>
+                        <div class="flex justify-between items-start mb-3 border-b border-slate-800 pb-3">
+                            <div>
+                                <span class="text-xs text-amber-400 font-bold">Pedido Activo #${index + 1}</span>
+                                <h3 class="font-extrabold text-white text-base">${order.clientName}</h3>
+                            </div>
+                            <span class="bg-amber-500/20 text-amber-400 text-xs font-extrabold px-2.5 py-1 rounded-lg uppercase">En Cocina</span>
+                        </div>
+                        <p class="text-xs text-slate-300 mb-3"><i class="fa-solid fa-location-dot text-mexRed mr-1"></i> <strong>Destino:</strong> ${order.clientAddress}</p>
+                        <p class="text-[10px] text-slate-500 mb-3"><i class="fa-regular fa-clock mr-1"></i> ${order.timestamp}</p>
+                        
+                        <div class="space-y-2 mb-4 bg-rancheroDark p-3 rounded-xl border border-slate-800 text-xs">
+                            ${order.items.map(i => `
+                                <div class="flex justify-between text-slate-300">
+                                    <span>${i.quantity}x ${i.name} ${i.selectedOption ? `(${i.selectedOption})` : ''}</span>
+                                    <span class="font-bold text-white">$${(i.price * i.quantity).toFixed(2)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between border-t border-slate-800 pt-3 mt-2">
+                        <span class="text-sm font-extrabold text-mexGreen">Total: $${order.total.toFixed(2)}</span>
+                        <button onclick="completeOrder(${index})" class="bg-mexGreen hover:bg-mexGreen/80 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow flex items-center gap-1.5">
+                            <i class="fa-solid fa-check"></i> Marcar Entregado
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function completeOrder(index) {
+            let activeOrders = JSON.parse(localStorage.getItem('ranchero_orders')) || [];
+            let completedOrder = activeOrders.splice(index, 1)[0];
+            
+            localStorage.setItem('ranchero_orders', JSON.stringify(activeOrders));
+            lastOrderCount = activeOrders.length;
+
+            let salesHistory = JSON.parse(localStorage.getItem('ranchero_sales_history')) || [];
+            salesHistory.unshift(completedOrder);
+            localStorage.setItem('ranchero_sales_history', JSON.stringify(salesHistory));
+
+            loadActiveOrders();
+        }
+
+        function loadSalesHistory() {
+            const salesHistory = JSON.parse(localStorage.getItem('ranchero_sales_history')) || [];
+            const tbody = document.getElementById('history-table-body');
+            const totalDisplay = document.getElementById('total-revenue-display');
+
+            const totalRevenue = salesHistory.reduce((sum, order) => sum + order.total, 0);
+            totalDisplay.innerText = `$${totalRevenue.toFixed(2)}`;
+
+            if (salesHistory.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="p-8 text-center text-slate-500">Aún no hay registros de ventas completadas.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = salesHistory.map(order => `
+                <tr class="hover:bg-slate-900/50">
+                    <td class="p-4 font-mono text-slate-400">${order.timestamp}</td>
+                    <td class="p-4 font-bold text-white">${order.clientName}</td>
+                    <td class="p-4 text-slate-300">${order.clientAddress}</td>
+                    <td class="p-4">
+                        <div class="space-y-0.5 text-[11px] text-slate-400">
+                            ${order.items.map(i => `<div>• ${i.quantity}x ${i.name} ${i.selectedOption ? `(${i.selectedOption})` : ''}</div>`).join('')}
+                        </div>
+                    </td>
+                    <td class="p-4 text-right font-extrabold text-mexGreen text-sm">$${order.total.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function clearHistory() {
+            if (confirm('¿Estás seguro de vaciar el registro de ventas?')) {
+                localStorage.removeItem('ranchero_sales_history');
+                loadSalesHistory();
+            }
+        }
+
+        setInterval(() => {
+            if (!document.getElementById('section-active').classList.contains('hidden')) {
+                loadActiveOrders();
+            }
+        }, 1500);
+
+        window.onload = loadActiveOrders;
+    </script>
+</body>
+</html>

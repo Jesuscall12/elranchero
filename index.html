@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taquería El Ranchero | Menú y Pedidos en Línea</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        rancheroDark: '#0f0f0f',
+                        rancheroCard: '#1a1a1a',
+                        mexGreen: '#16a34a',
+                        mexGreenHover: '#15803d',
+                        mexRed: '#dc2626',
+                        mexRedHover: '#b91c1c',
+                        rancheroGold: '#eab308'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-rancheroDark text-slate-100 font-sans antialiased pb-28">
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 bg-rancheroDark/95 backdrop-blur-md border-b border-mexRed/30 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-mexRed/20 border-2 border-mexGreen flex items-center justify-center text-2xl shadow-md">
+                    🌮
+                </div>
+                <div>
+                    <h1 class="text-lg font-extrabold text-white tracking-wide flex items-center gap-1.5">
+                        TAQUERÍA <span class="text-mexRed">EL RANCHERO</span>
+                    </h1>
+                    <span class="text-[10px] text-mexGreen font-bold uppercase tracking-widest block">Sabor Auténtico Mexicano</span>
+                </div>
+            </div>
+            
+            <!-- Botón del Carrito Flotante superior -->
+            <button onclick="toggleCartModal()" class="relative bg-mexGreen hover:bg-mexGreenHover text-white font-extrabold px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all shadow-lg border border-white/20">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="hidden sm:inline">Mi Pedido</span>
+                <span id="cart-counter" class="bg-mexRed text-white text-xs w-6 h-6 rounded-full flex items-center justify-center font-extrabold border-2 border-rancheroDark">0</span>
+            </button>
+        </div>
+
+        <!-- Menú de Filtros Rápidos (Categorías) -->
+        <nav class="bg-rancheroCard border-t border-b border-slate-800 px-4 py-2.5 overflow-x-auto">
+            <div class="max-w-7xl mx-auto flex gap-2 whitespace-nowrap text-xs font-bold">
+                <a href="#taquizas" class="bg-mexRed/20 text-mexRed border border-mexRed/40 hover:bg-mexRed hover:text-white px-4 py-2 rounded-xl transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-utensils"></i> Taquizas
+                </a>
+                <a href="#tacos" class="bg-mexGreen/20 text-mexGreen border border-mexGreen/40 hover:bg-mexGreen hover:text-white px-4 py-2 rounded-xl transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-fire"></i> Tacos
+                </a>
+                <a href="#tortas" class="bg-amber-500/20 text-rancheroGold border border-amber-500/40 hover:bg-amber-500 hover:text-slate-950 px-4 py-2 rounded-xl transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-burger"></i> Tortas & Antojitos
+                </a>
+                <a href="#especiales" class="bg-mexRed/20 text-mexRed border border-mexRed/40 hover:bg-mexRed hover:text-white px-4 py-2 rounded-xl transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-star"></i> Especiales
+                </a>
+                <a href="#bebidas" class="bg-mexGreen/20 text-mexGreen border border-mexGreen/40 hover:bg-mexGreen hover:text-white px-4 py-2 rounded-xl transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-wine-glass"></i> Bebidas & Licuados
+                </a>
+                <a href="#extras" class="bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 px-4 py-2 rounded-xl transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus-circle"></i> Extras
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative py-12 px-4 text-center bg-gradient-to-b from-mexRed/10 via-rancheroDark to-rancheroDark border-b border-slate-800">
+        <div class="max-w-3xl mx-auto">
+            <span class="inline-block px-4 py-1.5 bg-mexGreen/20 border border-mexGreen/40 text-mexGreen rounded-full text-xs font-extrabold uppercase tracking-widest mb-3 animate-pulse">
+                <i class="fa-solid fa-motorcycle mr-1"></i> ¡Delivery Gratis!
+            </span>
+            <h2 class="text-3xl sm:text-5xl font-extrabold text-white tracking-tight mb-3">
+                ¡Haz tu Pedido en Línea!
+            </h2>
+            <p class="text-slate-400 text-xs sm:text-sm max-w-xl mx-auto mb-5">
+                Selecciona tus platillos, personaliza tus sabores y envíalos directo a la cocina.
+            </p>
+            <div class="flex justify-center items-center gap-2 text-emerald-400 font-bold text-base bg-mexGreen/10 border border-mexGreen/30 py-2 px-5 rounded-xl max-w-xs mx-auto shadow-inner">
+                <i class="fa-brands fa-whatsapp text-xl"></i>
+                <span>Pedidos: 7940-1126</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contenedor Principal del Menú -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
+
+        <!-- SECCIÓN 1: TAQUIZAS -->
+        <section id="taquizas" class="scroll-mt-36">
+            <div class="flex items-center gap-3 mb-6 border-b-2 border-mexRed pb-2">
+                <i class="fa-solid fa-utensils text-mexRed text-xl"></i>
+                <h3 class="text-2xl font-extrabold text-white tracking-wide">Taquizas</h3>
+            </div>
+            <div id="grid-taquizas" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- SECCIÓN 2: TACOS -->
+        <section id="tacos" class="scroll-mt-36">
+            <div class="flex items-center gap-3 mb-6 border-b-2 border-mexGreen pb-2">
+                <i class="fa-solid fa-fire text-mexGreen text-xl"></i>
+                <h3 class="text-2xl font-extrabold text-white tracking-wide">Órdenes de Tacos</h3>
+            </div>
+            <div id="grid-tacos" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- SECCIÓN 3: TORTAS, BURRITOS Y QUESADILLAS -->
+        <section id="tortas" class="scroll-mt-36">
+            <div class="flex items-center gap-3 mb-6 border-b-2 border-rancheroGold pb-2">
+                <i class="fa-solid fa-burger text-rancheroGold text-xl"></i>
+                <h3 class="text-2xl font-extrabold text-white tracking-wide">Tortas, Burritos y Quesadillas</h3>
+            </div>
+            <div id="grid-tortas" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- SECCIÓN 4: ESPECIALIDADES -->
+        <section id="especiales" class="scroll-mt-36">
+            <div class="flex items-center gap-3 mb-6 border-b-2 border-mexRed pb-2">
+                <i class="fa-solid fa-star text-mexRed text-xl"></i>
+                <h3 class="text-2xl font-extrabold text-white tracking-wide">Platillos Especiales y Hamburguesas</h3>
+            </div>
+            <div id="grid-especiales" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- SECCIÓN 5: BEBIDAS -->
+        <section id="bebidas" class="scroll-mt-36">
+            <div class="flex items-center gap-3 mb-6 border-b-2 border-mexGreen pb-2">
+                <i class="fa-solid fa-wine-glass text-mexGreen text-xl"></i>
+                <h3 class="text-2xl font-extrabold text-white tracking-wide">Bebidas, Cervezas y Licuados</h3>
+            </div>
+            <div id="grid-bebidas" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- SECCIÓN 6: EXTRAS -->
+        <section id="extras" class="scroll-mt-36">
+            <div class="flex items-center gap-3 mb-6 border-b-2 border-slate-700 pb-2">
+                <i class="fa-solid fa-plus-circle text-slate-400 text-xl"></i>
+                <h3 class="text-2xl font-extrabold text-white tracking-wide">Extras</h3>
+            </div>
+            <div id="grid-extras" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+    </main>
+
+    <!-- Modal Carrito de Compras -->
+    <div id="cart-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex justify-end transition-opacity">
+        <div class="w-full max-w-md bg-rancheroCard h-full p-6 flex flex-col justify-between shadow-2xl border-l border-mexRed/40">
+            <div>
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-4">
+                    <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-cart-shopping text-mexGreen"></i> Tu Pedido
+                    </h3>
+                    <button onclick="toggleCartModal()" class="text-slate-400 hover:text-white text-2xl">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                
+                <div id="cart-items" class="space-y-3 max-h-[40vh] overflow-y-auto pr-1"></div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-3 space-y-3">
+                <div class="flex justify-between items-center text-lg font-bold text-white">
+                    <span>Total a Pagar:</span>
+                    <span id="cart-total" class="text-mexGreen font-extrabold text-xl">$0.00</span>
+                </div>
+                
+                <!-- Formulario con Tipo de Pedido, Ubicación GPS y Mesa -->
+                <div class="space-y-2.5">
+                    <input type="text" id="client-name" placeholder="Tu Nombre Completo" class="w-full bg-rancheroDark border border-slate-700 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-mexGreen">
+
+                    <div>
+                        <label class="block text-[10px] font-bold text-rancheroGold uppercase mb-1">Tipo de Pedido:</label>
+                        <select id="order-type" onchange="toggleOrderTypeFields()" class="w-full bg-rancheroDark border border-slate-700 text-xs text-white rounded-xl px-3 py-2 focus:outline-none focus:border-mexGreen">
+                            <option value="delivery">🛵 A Domicilio (Confirma por WhatsApp)</option>
+                            <option value="table">🍽️ En Mesa (Directo a Cocina)</option>
+                        </select>
+                    </div>
+
+                    <!-- Domicilio y GPS -->
+                    <div id="field-delivery" class="space-y-1">
+                        <div class="flex gap-2">
+                            <input type="text" id="client-address" placeholder="Dirección de entrega o colonia" class="w-full bg-rancheroDark border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-mexGreen">
+                            <button type="button" onclick="getLocation()" title="Usar mi ubicación GPS actual" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-mexGreen px-3 py-2 rounded-xl text-xs transition-all flex items-center justify-center">
+                                <i class="fa-solid fa-location-crosshairs text-base"></i>
+                            </button>
+                        </div>
+                        <p id="geo-status" class="text-[10px] text-slate-500 italic"></p>
+                    </div>
+
+                    <!-- Número de Mesa -->
+                    <div id="field-table" class="hidden">
+                        <input type="number" id="table-number" placeholder="Número de Mesa (Ej: 4)" class="w-full bg-rancheroDark border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-mexGreen">
+                    </div>
+                </div>
+
+                <button onclick="submitOrderToDashboard()" class="w-full bg-mexGreen hover:bg-mexGreenHover text-white font-extrabold py-3 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-paper-plane text-base"></i> Enviar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra Inferior Fija para Celulares -->
+    <div class="fixed bottom-0 left-0 right-0 bg-rancheroCard/95 backdrop-blur-md border-t border-mexRed/40 py-3 px-6 z-30 flex justify-between items-center sm:hidden shadow-2xl">
+        <div>
+            <span class="text-[10px] text-slate-400 block uppercase font-bold">Total estimado:</span>
+            <span id="mobile-total" class="text-lg font-extrabold text-mexGreen">$0.00</span>
+        </div>
+        <button onclick="toggleCartModal()" class="bg-mexRed hover:bg-mexRedHover text-white font-extrabold px-5 py-2.5 rounded-xl text-xs shadow-lg flex items-center gap-2">
+            <i class="fa-solid fa-cart-shopping"></i> Carrito (<span id="mobile-counter">0</span>)
+        </button>
+    </div>
+
+    <!-- Script de Datos y Funcionamiento -->
+    <script>
+        const menuData = {
+            taquizas: [
+                { id: 'tq1', name: 'Taquiza 1', desc: 'Incluye 10 tacos al pastor con aguacate, 1 orden de burritos.', price: 17.50, img: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=600&q=80' },
+                { id: 'tq2', name: 'Taquiza 2', desc: 'Incluye 10 tacos (res, pollo o mixtos), 1 orden de burritos.', price: 19.00, img: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=600&q=80' },
+                { id: 'tq3', name: 'Taquiza 3', desc: 'Incluye 25 tacos al pastor con aguacate.', price: 26.50, img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80' },
+                { id: 'tq4', name: 'Taquiza 4', desc: 'Incluye 12 tacos al pastor con aguacate, 2 órdenes de burritos.', price: 26.50, img: 'https://images.unsplash.com/photo-1599974579688-8dbdd335c77f?auto=format&fit=crop&w=600&q=80' },
+                { id: 'tq5', name: 'Taquiza 5', desc: 'Incluye 22 tacos al pastor con aguacate, 2 órdenes de papas.', price: 26.50, img: 'https://images.unsplash.com/photo-1615870216519-2f9fa575fa5c?auto=format&fit=crop&w=600&q=80' },
+                { id: 'tq6', name: 'Taquiza 6', desc: 'Incluyen 25 tacos (pollo o res), con aguacate.', price: 29.00, img: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=600&q=80' },
+                { id: 'tq7', name: 'Taquiza 7', desc: 'Incluye 12 tacos (pollo, res o mixtos), 2 órdenes de burritos.', price: 29.00, img: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=600&q=80' }
+            ],
+            tacos: [
+                {
+                    id: 'tacos_pastor',
+                    name: 'Orden de Tacos al Pastor',
+                    desc: 'Tradicionales al pastor con aguacate y guarnición.',
+                    img: 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=600&q=80',
+                    isGrouped: true,
+                    variants: [
+                        { label: '3 Tacos - $3.25', price: 3.25, subName: '3 Tacos al Pastor' },
+                        { label: '4 Tacos - $3.75', price: 3.75, subName: '4 Tacos al Pastor' },
+                        { label: '5 Tacos - $4.75', price: 4.75, subName: '5 Tacos al Pastor' },
+                        { label: '6 Tacos - $5.50', price: 5.50, subName: '6 Tacos al Pastor' }
+                    ]
+                },
+                {
+                    id: 'tacos_especiales',
+                    name: 'Orden de Tacos Especiales',
+                    desc: 'Elige tu carne favorita (Res, Pollo o Mixtos).',
+                    img: 'https://images.unsplash.com/photo-1615870216519-2f9fa575fa5c?auto=format&fit=crop&w=600&q=80',
+                    isGrouped: true,
+                    hasMeatOption: true,
+                    meatOptions: ['Res', 'Pollo', 'Mixtos'],
+                    variants: [
+                        { label: '3 Tacos - $3.50', price: 3.50, subName: '3 Tacos Especiales' },
+                        { label: '4 Tacos - $4.50', price: 4.50, subName: '4 Tacos Especiales' },
+                        { label: '5 Tacos - $5.25', price: 5.25, subName: '5 Tacos Especiales' },
+                        { label: '6 Tacos - $6.50', price: 6.50, subName: '6 Tacos Especiales' }
+                    ]
+                },
+                {
+                    id: 'tacos_lengua',
+                    name: 'Orden de Tacos de Lengua',
+                    desc: 'Especiales de exquisita lengua de res.',
+                    img: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80',
+                    isGrouped: true,
+                    variants: [
+                        { label: '3 Tacos - $4.50', price: 4.50, subName: '3 Tacos de Lengua' },
+                        { label: '4 Tacos - $6.00', price: 6.00, subName: '4 Tacos de Lengua' },
+                        { label: '5 Tacos - $7.50', price: 7.50, subName: '5 Tacos de Lengua' },
+                        { label: '6 Tacos - $9.00', price: 9.00, subName: '6 Tacos de Lengua' }
+                    ]
+                }
+            ],
+            tortas: [
+                {
+                    id: 'torta_clasica',
+                    name: 'Tortas Tradicionales',
+                    desc: 'Pan fresco con tu carne favorita.',
+                    img: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=600&q=80',
+                    isGrouped: true,
+                    variants: [
+                        { label: 'Torta al Pastor - $3.50', price: 3.50, subName: 'Torta al Pastor' },
+                        { label: 'Torta de Res - $4.00', price: 4.00, subName: 'Torta de Res' },
+                        { label: 'Torta de Pollo - $3.50', price: 3.50, subName: 'Torta de Pollo' },
+                        { label: 'Torta Mixta - $4.00', price: 4.00, subName: 'Torta Mixta' },
+                        { label: 'Torta de Lengua - $7.00', price: 7.00, subName: 'Torta de Lengua' },
+                        { label: 'Torta de Jamón con Queso - $3.00', price: 3.00, subName: 'Torta de Jamón con Queso' }
+                    ]
+                },
+                {
+                    id: 'torta_papas',
+                    name: 'Tortas con Papas Fritas',
+                    desc: 'Acompañadas de papas fritas crujientes.',
+                    img: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&q=80',
+                    isGrouped: true,
+                    variants: [
+                        { label: 'Pastor con Papas - $5.00', price: 5.00, subName: 'Torta al Pastor con Papas' },
+                        { label: 'Res con Papas - $5.50', price: 5.50, subName: 'Torta de Res con Papas' },
+                        { label: 'Pollo con Papas - $5.00', price: 5.00, subName: 'Torta de Pollo con Papas' },
+                        { label: 'Mixta con Papas - $5.50', price: 5.50, subName: 'Torta Mixta con Papas' }
+                    ]
+                },
+                {
+                    id: 'burritos_menu',
+                    name: 'Burritos',
+                    desc: 'Deliciosos burritos individuales o en orden.',
+                    img: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=600&q=80',
+                    isGrouped: true,
+                    variants: [
+                        { label: 'Burrito Individual al Pastor - $3.50', price: 3.50, subName: 'Burrito Individual al Pastor' },
+                        { label: 'Burrito con Papas - $5.00', price: 5.00, subName: 'Burrito con Papas' },
+                        { label: 'Orden de Burritos al Pastor - $6.00', price: 6.00, subName: 'Orden de Burritos al Pastor' },
+                        { label: 'Orden de Burrito Pollo - $6.00', price: 6.00, subName: 'Orden de Burrito Pollo' },
+                        { label: 'Orden de Burrito Res - $7.00', price: 7.00, subName: 'Orden de Burrito Res' },
+                        { label: 'Burritos Mixtos / Super Mixtos - $7.00', price: 7.00, subName: 'Burritos Mixtos / Super Mixtos' },
+                        { label: 'Orden de Burrito de Lengua - $10.00', price: 10.00, subName: 'Orden de Burrito de Lengua' }
+                    ]
+                },
+                {
+                    id: 'quesadillas_menu',
+                    name: 'Quesadillas',
+                    desc: 'Órdenes de quesadillas con queso fundido.',
+                    img: 'https://images.unsplash.com/photo-1618040992739-d5e8357f86f3?auto=format&fit=crop&w=600&q=80',
+                    isGrouped: true,
+                    variants: [
+                        { label: 'Orden de Quesadillas al Pastor - $6.00', price: 6.00, subName: 'Orden de Quesadillas al Pastor' },
+                        { label: 'Orden de Quesadilla Pollo - $6.00', price: 6.00, subName: 'Orden de Quesadilla Pollo' },
+                        { label: 'Orden de Quesadilla Res - $7.00', price: 7.00, subName: 'Orden de Quesadilla Res' },
+                        { label: 'Orden Quesadilla de Lengua - $10.00', price: 10.00, subName: 'Orden Quesadilla de Lengua' }
+                    ]
+                }
+            ],
+            especiales: [
+                { id: 'esp1', name: 'Carne Asada', desc: 'Incluye chorizo, aguacate, chimol, arroz, queso y 2 tortillas.', price: 7.00, img: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80' },
+                { id: 'esp2', name: 'Pechuga a la Plancha', desc: 'Incluye arroz, chimol, queso, aguacate y 2 tortillas.', price: 6.00, img: 'https://images.unsplash.com/photo-1604908176997-125f2596f37c?auto=format&fit=crop&w=600&q=80' },
+                { id: 'esp3', name: 'Plato de Boca', desc: 'Carne a elegir (pollo, res, chicharrón, etc.).', price: 7.00, img: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=600&q=80' },
+                { id: 'esp4', name: 'Plato de Boca Mix', desc: 'Chile relleno, chorizo, pechuga, carne, chicharrón y tortilla frita.', price: 10.00, img: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&q=80' },
+                { id: 'esp5', name: 'Hamburguesa con Papas', desc: 'Hamburguesa especial con papas fritas', price: 4.00, img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&q=80' },
+                { id: 'esp6', name: 'Hamburguesa Sola', desc: 'Clásica con queso y vegetales', price: 3.00, img: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=600&q=80' },
+                { id: 'esp7', name: 'Orden de Papas', desc: 'Papas fritas estilo francés', price: 1.75, img: 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&q=80' }
+            ],
+            bebidas: [
+                {
+                    id: 'cervezas',
+                    name: 'Cervezas Nacionales e Importadas',
+                    desc: 'Botella bien fría a elegir.',
+                    img: 'https://images.unsplash.com/photo-1608270102551-73778a4e320f?auto=format&fit=crop&w=600&q=80',
+                    isGrouped: true,
+                    variants: [
+                        { label: 'Cerveza Pilsener - $1.25', price: 1.25, subName: 'Cerveza Pilsener' },
+                        { label: 'Cerveza Golden - $1.25', price: 1.25, subName: 'Cerveza Golden' },
+                        { label: 'Cerveza Suprema - $1.50', price: 1.50, subName: 'Cerveza Suprema' },
+                        { label: 'Cerveza Corona - $2.25', price: 2.25, subName: 'Cerveza Corona' },
+                        { label: 'Cerveza Modelo - $2.25', price: 2.25, subName: 'Cerveza Modelo' }
+                    ]
+                },
+                {
+                    id: 'micheladas',
+                    name: 'Micheladas Preparadas',
+                    desc: 'Preparadas con sal y limón al gusto.',
+                    img: 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?auto=format&fit=crop&w=600&q=80',
+                    isGrouped: true,
+                    variants: [
+                        { label: 'Michelada Pilsener - $3.50', price: 3.50, subName: 'Michelada Pilsener' },
+                        { label: 'Michelada Golden - $3.50', price: 3.50, subName: 'Michelada Golden' },
+                        { label: 'Michelada Suprema - $4.00', price: 4.00, subName: 'Michelada Suprema' },
+                        { label: 'Michelada Corona - $4.50', price: 4.50, subName: 'Michelada Corona' }
+                    ]
+                },
+                { id: 'bev10', name: 'Gatorade / Powerade', desc: 'Rehidratante', price: 1.25, img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80', hasOption: true, options: ['Frutos Rojos', 'Limonada', 'Uva', 'Naranja'] },
+                { 
+                    id: 'bev11', 
+                    name: 'Soda en Lata', 
+                    desc: 'Variedad de sabores', 
+                    price: 1.00, 
+                    img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80',
+                    hasOption: true,
+                    options: ['Coca-Cola', 'Pepsi', 'Uva', 'Fresa', 'Sprite', 'Naranja']
+                },
+                { 
+                    id: 'bev12', 
+                    name: 'Soda en Vidrio', 
+                    desc: 'Variedad de sabores', 
+                    price: 1.00, 
+                    img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=600&q=80',
+                    hasOption: true,
+                    options: ['Coca-Cola', 'Kolashanpan', 'Uva', 'Fresa', 'Sprite', 'Naranja']
+                },
+                { 
+                    id: 'bev13', 
+                    name: 'Té de Botella', 
+                    desc: 'Sabor durazno/limón', 
+                    price: 1.25, 
+                    img: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80',
+                    hasOption: true,
+                    options: ['Durazno', 'Limón', 'Té Verde']
+                },
+                { 
+                    id: 'bev14', 
+                    name: 'Jugos del Valle', 
+                    desc: 'Néctar de frutas', 
+                    price: 1.00, 
+                    img: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80',
+                    hasOption: true,
+                    options: ['Manzana', 'Durazno', 'Pera', 'Naranja']
+                },
+                { id: 'bev15', name: 'Limonada Natural', desc: 'Preparada al instante', price: 2.00, img: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&q=80' },
+                { id: 'bev16', name: 'Agua Embotellada', desc: 'Purificada', price: 0.75, img: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=600&q=80' },
+                { 
+                    id: 'bev17', 
+                    name: 'Licuado Natural', 
+                    desc: 'Elige tu fruta favorita', 
+                    price: 2.50,
+                    img: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?auto=format&fit=crop&w=600&q=80',
+                    hasOption: true,
+                    options: ['Guineo', 'Papaya', 'Fresa', 'Zapote', 'Mixtos']
+                },
+                { id: 'bev18', name: 'Jugo de Naranja Natural', desc: '100% fruta natural', price: 3.00, img: 'https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&q=80' },
+                { 
+                    id: 'bev19', 
+                    name: 'Frozen de Fruta', 
+                    desc: 'Refrescante y granizado', 
+                    price: 3.00,
+                    img: 'https://images.unsplash.com/photo-1546173159-ba727fea9746?auto=format&fit=crop&w=600&q=80',
+                    hasOption: true,
+                    options: ['Sandía', 'Piña', 'Fresa']
+                }
+            ],
+            extras: [
+                { id: 'ex1', name: 'Limón Extra', desc: 'Porción adicional', price: 0.25, img: 'https://images.unsplash.com/photo-1582979512210-99b6a53386cf?auto=format&fit=crop&w=600&q=80' },
+                { id: 'ex2', name: 'Cebolla Extra', desc: 'Porción adicional', price: 0.25, img: 'https://images.unsplash.com/photo-1508747703725-71c7776b7ac2?auto=format&fit=crop&w=600&q=80' },
+                { id: 'ex3', name: 'Chimol Extra', desc: 'Porción adicional', price: 0.25, img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80' }
+            ]
+        };
+
+        let cart = [];
+        let clientCoords = null;
+
+        function renderMenu() {
+            renderSection('grid-taquizas', menuData.taquizas, 'taquizas');
+            renderSection('grid-tacos', menuData.tacos, 'tacos');
+            renderSection('grid-tortas', menuData.tortas, 'tortas');
+            renderSection('grid-especiales', menuData.especiales, 'especiales');
+            renderSection('grid-bebidas', menuData.bebidas, 'bebidas');
+            renderSection('grid-extras', menuData.extras, 'extras');
+        }
+
+        function renderSection(containerId, items, categoryKey) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            container.innerHTML = items.map(item => {
+                if (item.isGrouped) {
+                    return `
+                        <div class="bg-rancheroCard border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-mexRed/50 transition-all shadow-md">
+                            <div class="h-40 bg-slate-900 relative overflow-hidden">
+                                <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500">
+                            </div>
+                            <div class="p-4 flex-1 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex justify-between items-start gap-2 mb-1">
+                                        <h4 class="font-bold text-white text-sm">${item.name}</h4>
+                                        <span id="price-display-${item.id}" class="text-mexGreen font-extrabold text-sm bg-mexGreen/10 px-2 py-0.5 rounded-lg border border-mexGreen/30">$${item.variants[0].price.toFixed(2)}</span>
+                                    </div>
+                                    <p class="text-slate-400 text-xs mb-3 leading-relaxed">${item.desc}</p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-rancheroGold uppercase mb-1">Seleccionar Opción:</label>
+                                        <select id="variant-${item.id}" onchange="updateCardPrice('${item.id}', '${categoryKey}')" class="w-full bg-rancheroDark border border-slate-700 text-xs text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-mexGreen">
+                                            ${item.variants.map((v, idx) => `<option value="${idx}">${v.label}</option>`).join('')}
+                                        </select>
+                                    </div>
+
+                                    ${item.hasMeatOption ? `
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-rancheroGold uppercase mb-1">Tipo de Carne:</label>
+                                            <select id="meat-${item.id}" class="w-full bg-rancheroDark border border-slate-700 text-xs text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-mexGreen">
+                                                ${item.meatOptions.map(m => `<option value="${m}">${m}</option>`).join('')}
+                                            </select>
+                                        </div>
+                                    ` : ''}
+
+                                    <button onclick="addGroupedToCart('${item.id}', '${categoryKey}')" class="w-full bg-mexRed hover:bg-mexRedHover text-white font-extrabold py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md">
+                                        <i class="fa-solid fa-cart-plus"></i> Agregar al Pedido
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="bg-rancheroCard border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-mexRed/50 transition-all shadow-md">
+                        <div class="h-40 bg-slate-900 relative overflow-hidden">
+                            <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-500">
+                        </div>
+                        <div class="p-4 flex-1 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-start gap-2 mb-1">
+                                    <h4 class="font-bold text-white text-sm">${item.name}</h4>
+                                    <span class="text-mexGreen font-extrabold text-sm bg-mexGreen/10 px-2 py-0.5 rounded-lg border border-mexGreen/30">$${item.price.toFixed(2)}</span>
+                                </div>
+                                <p class="text-slate-400 text-xs mb-3 leading-relaxed">${item.desc}</p>
+                            </div>
+
+                            <div>
+                                ${item.hasOption ? `
+                                    <div class="mb-2">
+                                        <label class="block text-[10px] font-bold text-rancheroGold uppercase mb-1">Elegir Sabor / Opción:</label>
+                                        <select id="opt-${item.id}" class="w-full bg-rancheroDark border border-slate-700 text-xs text-white rounded-lg px-3 py-1.5 focus:outline-none focus:border-mexGreen">
+                                            ${item.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                ` : ''}
+                                <button onclick="addToCart('${item.id}', '${categoryKey}')" class="w-full bg-mexRed hover:bg-mexRedHover text-white font-extrabold py-2 rounded-xl text-xs transition-all flex items-center justify-center gap-2 shadow-md">
+                                    <i class="fa-solid fa-cart-plus"></i> Agregar al Pedido
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateCardPrice(itemId, categoryKey) {
+            const item = menuData[categoryKey].find(i => i.id === itemId);
+            const selectEl = document.getElementById(`variant-${itemId}`);
+            const selectedVariant = item.variants[selectEl.value];
+            const priceDisplay = document.getElementById(`price-display-${itemId}`);
+            priceDisplay.innerText = `$${selectedVariant.price.toFixed(2)}`;
+        }
+
+        function addGroupedToCart(itemId, categoryKey) {
+            const item = menuData[categoryKey].find(i => i.id === itemId);
+            const selectEl = document.getElementById(`variant-${itemId}`);
+            const variant = item.variants[selectEl.value];
+
+            let meatOption = null;
+            if (item.hasMeatOption) {
+                const meatEl = document.getElementById(`meat-${itemId}`);
+                meatOption = meatEl ? meatEl.value : null;
+            }
+
+            let customName = variant.subName;
+            if (meatOption) {
+                customName += ` (${meatOption})`;
+            }
+
+            const cartKey = `${itemId}-${variant.subName}-${meatOption || 'none'}`;
+            const existing = cart.find(c => c.cartKey === cartKey);
+
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({
+                    id: itemId,
+                    name: customName,
+                    price: variant.price,
+                    cartKey,
+                    quantity: 1
+                });
+            }
+
+            updateCartUI();
+        }
+
+        function addToCart(itemId, categoryKey) {
+            const item = menuData[categoryKey].find(i => i.id === itemId);
+            let selectedOption = null;
+
+            if (item.hasOption) {
+                const optSelect = document.getElementById(`opt-${item.id}`);
+                selectedOption = optSelect ? optSelect.value : item.options[0];
+            }
+
+            const cartKey = selectedOption ? `${item.id}-${selectedOption}` : item.id;
+            const existing = cart.find(c => c.cartKey === cartKey);
+
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({
+                    ...item,
+                    cartKey,
+                    selectedOption,
+                    quantity: 1
+                });
+            }
+
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const totalCount = cart.reduce((sum, i) => sum + i.quantity, 0);
+            document.getElementById('cart-counter').innerText = totalCount;
+            document.getElementById('mobile-counter').innerText = totalCount;
+
+            const totalPrice = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+            document.getElementById('cart-total').innerText = `$${totalPrice.toFixed(2)}`;
+            document.getElementById('mobile-total').innerText = `$${totalPrice.toFixed(2)}`;
+
+            const container = document.getElementById('cart-items');
+            if (cart.length === 0) {
+                container.innerHTML = `<p class="text-slate-500 text-center py-6 text-xs">Tu carrito está vacío. ¡Elige tus platillos!</p>`;
+                return;
+            }
+
+            container.innerHTML = cart.map(item => `
+                <div class="bg-rancheroDark border border-slate-800 p-3 rounded-xl flex justify-between items-center">
+                    <div class="pr-2">
+                        <h5 class="font-bold text-white text-xs">${item.name}</h5>
+                        ${item.selectedOption ? `<span class="text-[10px] text-rancheroGold block">Sabor/Opción: ${item.selectedOption}</span>` : ''}
+                        <span class="text-xs text-mexGreen font-semibold">$${(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeQty('${item.cartKey}', -1)" class="w-6 h-6 bg-slate-800 text-white rounded-lg flex items-center justify-center text-xs hover:bg-slate-700 font-bold">-</button>
+                        <span class="text-xs font-bold text-white w-4 text-center">${item.quantity}</span>
+                        <button onclick="changeQty('${item.cartKey}', 1)" class="w-6 h-6 bg-slate-800 text-white rounded-lg flex items-center justify-center text-xs hover:bg-slate-700 font-bold">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function changeQty(cartKey, delta) {
+            const index = cart.findIndex(c => c.cartKey === cartKey);
+            if (index !== -1) {
+                cart[index].quantity += delta;
+                if (cart[index].quantity <= 0) {
+                    cart.splice(index, 1);
+                }
+            }
+            updateCartUI();
+        }
+
+        function toggleCartModal() {
+            const modal = document.getElementById('cart-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function toggleOrderTypeFields() {
+            const type = document.getElementById('order-type').value;
+            const deliveryField = document.getElementById('field-delivery');
+            const tableField = document.getElementById('field-table');
+
+            if (type === 'delivery') {
+                deliveryField.classList.remove('hidden');
+                tableField.classList.add('hidden');
+            } else {
+                deliveryField.classList.add('hidden');
+                tableField.classList.remove('hidden');
+            }
+        }
+
+        function getLocation() {
+            const statusText = document.getElementById('geo-status');
+            if (!navigator.geolocation) {
+                statusText.innerText = "Tu navegador no soporta geolocalización.";
+                return;
+            }
+
+            statusText.innerText = "Obteniendo ubicación GPS...";
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    clientCoords = `https://maps.google.com/?q=${lat},${lon}`;
+                    document.getElementById('client-address').value = `Ubicación GPS marcada (Lat: ${lat.toFixed(4)}, Lon: ${lon.toFixed(4)})`;
+                    statusText.innerText = "¡Ubicación guardada con éxito!";
+                    statusText.className = "text-[10px] text-mexGreen font-bold not-italic";
+                },
+                () => {
+                    statusText.innerText = "No se pudo obtener la ubicación. Escribe tu dirección manual.";
+                    statusText.className = "text-[10px] text-mexRed font-bold not-italic";
+                }
+            );
+        }
+
+        function submitOrderToDashboard() {
+            if (cart.length === 0) {
+                alert('El carrito está vacío. Elige tus platillos primero.');
+                return;
+            }
+
+            const name = document.getElementById('client-name').value.trim();
+            const orderType = document.getElementById('order-type').value;
+
+            if (!name) {
+                alert('Por favor ingresa tu nombre completo.');
+                return;
+            }
+
+            if (orderType === 'table') {
+                const tableNum = document.getElementById('table-number').value.trim();
+                if (!tableNum) {
+                    alert('Por favor ingresa el número de tu mesa.');
+                    return;
+                }
+
+                const deliveryInfo = `🍽️ Consumo en Mesa #${tableNum}`;
+                const newOrder = {
+                    clientName: name,
+                    clientAddress: deliveryInfo,
+                    items: cart,
+                    total: cart.reduce((sum, i) => sum + (i.price * i.quantity), 0),
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+
+                let existingOrders = JSON.parse(localStorage.getItem('ranchero_orders')) || [];
+                existingOrders.unshift(newOrder);
+                localStorage.setItem('ranchero_orders', JSON.stringify(existingOrders));
+
+                cart = [];
+                updateCartUI();
+                toggleCartModal();
+                alert('¡Pedido de mesa enviado con éxito a la cocina!');
+
+            } else {
+                const address = document.getElementById('client-address').value.trim();
+                if (!address) {
+                    alert('Por favor ingresa tu dirección o usa el GPS.');
+                    return;
+                }
+
+                const deliveryInfo = clientCoords ? `Domicilio: ${address} [GPS: ${clientCoords}]` : `Domicilio: ${address}`;
+                const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+
+                const newOrder = {
+                    clientName: name,
+                    clientAddress: deliveryInfo,
+                    items: cart,
+                    total: total,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+
+                let existingOrders = JSON.parse(localStorage.getItem('ranchero_orders')) || [];
+                existingOrders.unshift(newOrder);
+                localStorage.setItem('ranchero_orders', JSON.stringify(existingOrders));
+
+                let message = `¡Hola Taquería El Ranchero! 🌮 Deseo confirmar mi pedido a domicilio:%0A%0A`;
+                message += `👤 *Cliente:* ${name}%0A`;
+                message += `📍 *Dirección:* ${deliveryInfo}%0A%0A`;
+                message += `🛒 *Detalle del Pedido:*%0A`;
+
+                cart.forEach(item => {
+                    let optText = item.selectedOption ? ` (${item.selectedOption})` : '';
+                    message += `• ${item.quantity}x ${item.name}${optText} - $${(item.price * item.quantity).toFixed(2)}%0A`;
+                });
+
+                message += `%0A💰 *Total:* $${total.toFixed(2)}`;
+
+                const phone = "50379401126";
+
+                cart = [];
+                clientCoords = null;
+                updateCartUI();
+                toggleCartModal();
+
+                window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+            }
+        }
+
+        window.onload = renderMenu;
+    </script>
+</body>
+</html>
