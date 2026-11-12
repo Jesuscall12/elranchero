@@ -223,6 +223,25 @@
         </button>
     </div>
 
+    <!-- SDKs de Firebase (compatibilidad para web rápida) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <!-- Script de Configuración de Firebase -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKBn6JrjzjpUyDsPz8X06fSbbq8onfFo8",
+            authDomain: "taqueria-el-ranchero-4c717.firebaseapp.com",
+            projectId: "taqueria-el-ranchero-4c717",
+            storageBucket: "taqueria-el-ranchero-4c717.firebasestorage.app",
+            messagingSenderId: "525845467980",
+            appId: "1:525845467980:web:eb7dc948852e227b82f5e9"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+
     <!-- Script de Datos y Funcionamiento -->
     <script>
         const menuData = {
@@ -698,53 +717,57 @@
                 return;
             }
 
+            let deliveryInfo = "";
+            let total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+
             if (orderType === 'table') {
                 const tableNum = document.getElementById('table-number').value.trim();
                 if (!tableNum) {
                     alert('Por favor ingresa el número de tu mesa.');
                     return;
                 }
-
-                const deliveryInfo = `🍽️ Consumo en Mesa #${tableNum}`;
-                const newOrder = {
-                    clientName: name,
-                    clientAddress: deliveryInfo,
-                    items: cart,
-                    total: cart.reduce((sum, i) => sum + (i.price * i.quantity), 0),
-                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                };
-
-                let existingOrders = JSON.parse(localStorage.getItem('ranchero_orders')) || [];
-                existingOrders.unshift(newOrder);
-                localStorage.setItem('ranchero_orders', JSON.stringify(existingOrders));
-
-                cart = [];
-                updateCartUI();
-                toggleCartModal();
-                alert('¡Pedido de mesa enviado con éxito a la cocina!');
-
+                deliveryInfo = `🍽️ Consumo en Mesa #${tableNum}`;
             } else {
                 const address = document.getElementById('client-address').value.trim();
                 if (!address) {
                     alert('Por favor ingresa tu dirección o usa el GPS.');
                     return;
                 }
+                deliveryInfo = clientCoords ? `Domicilio: ${address} [GPS: ${clientCoords}]` : `Domicilio: ${address}`;
+            }
 
-                const deliveryInfo = clientCoords ? `Domicilio: ${address} [GPS: ${clientCoords}]` : `Domicilio: ${address}`;
-                const total = cart.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+            // Crear objeto de pedido
+            const newOrder = {
+                clientName: name,
+                clientAddress: deliveryInfo,
+                items: cart.map(i => ({
+                    name: i.name,
+                    quantity: i.quantity,
+                    price: i.price,
+                    selectedOption: i.selectedOption || null
+                })),
+                total: total,
+                status: 'pendiente',
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
 
-                const newOrder = {
-                    clientName: name,
-                    clientAddress: deliveryInfo,
-                    items: cart,
-                    total: total,
-                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                };
+            // 1. Guardar directo en la nube (Firestore) para que la cocina lo reciba en tiempo real
+            db.collection("pedidos").add(newOrder)
+            .then(() => {
+                console.log("Pedido enviado a la nube con éxito.");
+            })
+            .catch((error) => {
+                console.error("Error al enviar a Firebase: ", error);
+            });
 
-                let existingOrders = JSON.parse(localStorage.getItem('ranchero_orders')) || [];
-                existingOrders.unshift(newOrder);
-                localStorage.setItem('ranchero_orders', JSON.stringify(existingOrders));
-
+            // 2. Comportamiento según el tipo de pedido
+            if (orderType === 'table') {
+                cart = [];
+                updateCartUI();
+                toggleCartModal();
+                alert('¡Pedido de mesa enviado con éxito a la cocina!');
+            } else {
                 let message = `¡Hola Taquería El Ranchero! 🌮 Deseo confirmar mi pedido a domicilio:%0A%0A`;
                 message += `👤 *Cliente:* ${name}%0A`;
                 message += `📍 *Dirección:* ${deliveryInfo}%0A%0A`;

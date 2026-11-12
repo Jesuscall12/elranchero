@@ -36,7 +36,7 @@
             </div>
             <div class="flex items-center gap-3">
                 <div class="bg-mexGreen/10 border border-mexGreen/30 text-mexGreen text-xs px-4 py-2 rounded-xl font-bold flex items-center gap-2 shadow-inner">
-                    <i class="fa-solid fa-circle text-[8px] animate-ping"></i> Sistema en Línea
+                    <i class="fa-solid fa-circle text-[8px] animate-ping"></i> Firebase Conectado
                 </div>
                 <button onclick="switchTab('active')" id="btn-tab-active" class="bg-mexRed text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow">
                     <i class="fa-solid fa-fire-burner mr-1"></i> Pedidos Activos
@@ -102,9 +102,30 @@
 
     </div>
 
-    <!-- Script de Control y Sincronización -->
+    <!-- SDKs de Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+    <!-- Configuración de Firebase -->
     <script>
-        let lastOrderCount = 0;
+        const firebaseConfig = {
+            apiKey: "AIzaSyBKBn6JrjzjpUyDsPz8X06fSbbq8onfFo8",
+            authDomain: "taqueria-el-ranchero-4c717.firebaseapp.com",
+            projectId: "taqueria-el-ranchero-4c717",
+            storageBucket: "taqueria-el-ranchero-4c717.firebasestorage.app",
+            messagingSenderId: "525845467980",
+            appId: "1:525845467980:web:eb7dc948852e227b82f5e9"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+
+    <!-- Script de Control y Sincronización en Tiempo Real -->
+    <script>
+        let activeOrdersList = [];
+        let salesHistoryList = JSON.parse(localStorage.getItem('ranchero_sales_history')) || [];
+        let isFirstLoad = true;
 
         function playBeep() {
             try {
@@ -133,26 +154,44 @@
                 historySec.classList.add('hidden');
                 btnActive.className = "bg-mexRed text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow";
                 btnHistory.className = "bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition-all";
-                loadActiveOrders();
+                renderActiveOrders();
             } else {
                 activeSec.classList.add('hidden');
                 historySec.classList.remove('hidden');
                 btnHistory.className = "bg-mexGreen text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all shadow";
                 btnActive.className = "bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2.5 rounded-xl transition-all";
-                loadSalesHistory();
+                renderSalesHistory();
             }
         }
 
-        function loadActiveOrders() {
-            const savedOrders = JSON.parse(localStorage.getItem('ranchero_orders')) || [];
+        // Escuchar cambios en tiempo real desde Firestore
+        function listenToFirebaseOrders() {
+            db.collection("pedidos")
+              .where("status", "==", "pendiente")
+              .onSnapshot((snapshot) => {
+                let newOrders = [];
+                snapshot.forEach((doc) => {
+                    newOrders.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+
+                // Si hay más pedidos que antes y no es la primera carga, suena la alerta
+                if (!isFirstLoad && newOrders.length > activeOrdersList.length) {
+                    playBeep();
+                }
+
+                activeOrdersList = newOrders;
+                isFirstLoad = false;
+                renderActiveOrders();
+            });
+        }
+
+        function renderActiveOrders() {
             const container = document.getElementById('admin-orders-container');
 
-            if (savedOrders.length > lastOrderCount && lastOrderCount !== 0) {
-                playBeep();
-            }
-            lastOrderCount = savedOrders.length;
-
-            if (savedOrders.length === 0) {
+            if (activeOrdersList.length === 0) {
                 container.innerHTML = `
                     <div class="bg-rancheroCard border border-slate-800 rounded-2xl p-6 text-center text-slate-500 col-span-full py-16">
                         <i class="fa-solid fa-receipt text-4xl mb-3 text-slate-700"></i>
@@ -163,7 +202,7 @@
                 return;
             }
 
-            container.innerHTML = savedOrders.map((order, index) => `
+            container.innerHTML = activeOrdersList.map((order, index) => `
                 <div class="bg-rancheroCard border border-slate-800 rounded-2xl p-5 shadow-2xl flex flex-col justify-between border-t-4 border-t-mexRed">
                     <div>
                         <div class="flex justify-between items-start mb-3 border-b border-slate-800 pb-3">
@@ -188,7 +227,7 @@
 
                     <div class="flex items-center justify-between border-t border-slate-800 pt-3 mt-2">
                         <span class="text-sm font-extrabold text-mexGreen">Total: $${order.total.toFixed(2)}</span>
-                        <button onclick="completeOrder(${index})" class="bg-mexGreen hover:bg-mexGreen/80 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow flex items-center gap-1.5">
+                        <button onclick="completeOrder('${order.id}')" class="bg-mexGreen hover:bg-mexGreen/80 text-white text-xs font-bold px-4 py-2 rounded-xl transition-all shadow flex items-center gap-1.5">
                             <i class="fa-solid fa-check"></i> Marcar Entregado
                         </button>
                     </div>
@@ -196,29 +235,33 @@
             `).join('');
         }
 
-        function completeOrder(index) {
-            let activeOrders = JSON.parse(localStorage.getItem('ranchero_orders')) || [];
-            let completedOrder = activeOrders.splice(index, 1)[0];
-            
-            localStorage.setItem('ranchero_orders', JSON.stringify(activeOrders));
-            lastOrderCount = activeOrders.length;
-
-            let salesHistory = JSON.parse(localStorage.getItem('ranchero_sales_history')) || [];
-            salesHistory.unshift(completedOrder);
-            localStorage.setItem('ranchero_sales_history', JSON.stringify(salesHistory));
-
-            loadActiveOrders();
+        // Marcar pedido como entregado (actualiza estado en Firebase y lo pasa al historial)
+        function completeOrder(docId) {
+            db.collection("pedidos").doc(docId).update({
+                status: "completado"
+            })
+            .then(() => {
+                // Encontrar el pedido completado para pasarlo al historial local
+                const completed = activeOrdersList.find(o => o.id === docId);
+                if (completed) {
+                    salesHistoryList.unshift(completed);
+                    localStorage.setItem('ranchero_sales_history', JSON.stringify(salesHistoryList));
+                }
+                console.log("Pedido marcado como completado.");
+            })
+            .catch((error) => {
+                console.error("Error al actualizar el pedido: ", error);
+            });
         }
 
-        function loadSalesHistory() {
-            const salesHistory = JSON.parse(localStorage.getItem('ranchero_sales_history')) || [];
+        function renderSalesHistory() {
             const tbody = document.getElementById('history-table-body');
             const totalDisplay = document.getElementById('total-revenue-display');
 
-            const totalRevenue = salesHistory.reduce((sum, order) => sum + order.total, 0);
+            const totalRevenue = salesHistoryList.reduce((sum, order) => sum + order.total, 0);
             totalDisplay.innerText = `$${totalRevenue.toFixed(2)}`;
 
-            if (salesHistory.length === 0) {
+            if (salesHistoryList.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="5" class="p-8 text-center text-slate-500">Aún no hay registros de ventas completadas.</td>
@@ -227,7 +270,7 @@
                 return;
             }
 
-            tbody.innerHTML = salesHistory.map(order => `
+            tbody.innerHTML = salesHistoryList.map(order => `
                 <tr class="hover:bg-slate-900/50">
                     <td class="p-4 font-mono text-slate-400">${order.timestamp}</td>
                     <td class="p-4 font-bold text-white">${order.clientName}</td>
@@ -244,18 +287,16 @@
 
         function clearHistory() {
             if (confirm('¿Estás seguro de vaciar el registro de ventas?')) {
+                salesHistoryList = [];
                 localStorage.removeItem('ranchero_sales_history');
-                loadSalesHistory();
+                renderSalesHistory();
             }
         }
 
-        setInterval(() => {
-            if (!document.getElementById('section-active').classList.contains('hidden')) {
-                loadActiveOrders();
-            }
-        }, 1500);
-
-        window.onload = loadActiveOrders;
+        // Iniciar la escucha al cargar la página
+        window.onload = () => {
+            listenToFirebaseOrders();
+        };
     </script>
 </body>
 </html>
