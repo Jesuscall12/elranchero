@@ -163,7 +163,7 @@
             }
         }
 
-        // Escuchar cambios en tiempo real desde Firestore (solo pedidos pendientes)
+        // Escuchar cambios en tiempo real desde Firestore (solo pedidos con estado "pendiente")
         function listenToFirebaseOrders() {
             db.collection("pedidos")
               .where("status", "==", "pendiente")
@@ -233,67 +233,85 @@
             `).join('');
         }
 
-        // Marcar pedido como entregado (actualiza en Firebase y lo guarda en el historial local)
+        // Marcar pedido como entregado en Firebase
         function completeOrder(docId) {
             db.collection("pedidos").doc(docId).update({
                 status: "completado"
             })
             .then(() => {
-                // Buscamos el pedido en la lista activa actual
-                const completedOrder = activeOrdersList.find(o => o.id === docId);
-                if (completedOrder) {
-                    let salesHistory = JSON.parse(localStorage.getItem('ranchero_sales_history')) || [];
-                    salesHistory.unshift(completedOrder);
-                    localStorage.setItem('ranchero_sales_history', JSON.stringify(salesHistory));
-                }
-                console.log("Pedido completado y guardado en historial.");
+                console.log("Pedido marcado como completado en Firebase.");
             })
             .catch((error) => {
-                console.error("Error al actualizar el pedido en Firebase: ", error);
+                console.error("Error al actualizar el pedido: ", error);
             });
         }
 
-        // Cargar historial de ventas desde localStorage
+        // Cargar historial directamente desde Firebase (todos los pedidos "completados")
         function loadSalesHistory() {
-            const salesHistory = JSON.parse(localStorage.getItem('ranchero_sales_history')) || [];
             const tbody = document.getElementById('history-table-body');
             const totalDisplay = document.getElementById('total-revenue-display');
 
-            const totalRevenue = salesHistory.reduce((sum, order) => sum + order.total, 0);
-            totalDisplay.innerText = `$${totalRevenue.toFixed(2)}`;
+            db.collection("pedidos")
+              .where("status", "==", "completado")
+              .get()
+              .then((querySnapshot) => {
+                  let salesHistory = [];
+                  let totalRevenue = 0;
 
-            if (salesHistory.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="p-8 text-center text-slate-500">Aún no hay registros de ventas completadas.</td>
-                    </tr>
-                `;
-                return;
-            }
+                  querySnapshot.forEach((doc) => {
+                      const order = doc.data();
+                      salesHistory.push(order);
+                      totalRevenue += order.total || 0;
+                  });
 
-            tbody.innerHTML = salesHistory.map(order => `
-                <tr class="hover:bg-slate-900/50">
-                    <td class="p-4 font-mono text-slate-400">${order.timestamp}</td>
-                    <td class="p-4 font-bold text-white">${order.clientName}</td>
-                    <td class="p-4 text-slate-300">${order.clientAddress}</td>
-                    <td class="p-4">
-                        <div class="space-y-0.5 text-[11px] text-slate-400">
-                            ${order.items.map(i => `<div>• ${i.quantity}x ${i.name} ${i.selectedOption ? `(${i.selectedOption})` : ''}</div>`).join('')}
-                        </div>
-                    </td>
-                    <td class="p-4 text-right font-extrabold text-mexGreen text-sm">$${order.total.toFixed(2)}</td>
-                </tr>
-            `).join('');
+                  totalDisplay.innerText = `$${totalRevenue.toFixed(2)}`;
+
+                  if (salesHistory.length === 0) {
+                      tbody.innerHTML = `
+                          <tr>
+                              <td colspan="5" class="p-8 text-center text-slate-500">Aún no hay registros de ventas completadas.</td>
+                          </tr>
+                      `;
+                      return;
+                  }
+
+                  tbody.innerHTML = salesHistory.map(order => `
+                      <tr class="hover:bg-slate-900/50">
+                          <td class="p-4 font-mono text-slate-400">${order.timestamp || 'N/A'}</td>
+                          <td class="p-4 font-bold text-white">${order.clientName}</td>
+                          <td class="p-4 text-slate-300">${order.clientAddress}</td>
+                          <td class="p-4">
+                              <div class="space-y-0.5 text-[11px] text-slate-400">
+                                  ${order.items.map(i => `<div>• ${i.quantity}x ${i.name} ${i.selectedOption ? `(${i.selectedOption})` : ''}</div>`).join('')}
+                              </div>
+                          </td>
+                          <td class="p-4 text-right font-extrabold text-mexGreen text-sm">$${(order.total || 0).toFixed(2)}</td>
+                      </tr>
+                  `).join('');
+              })
+              .catch((error) => {
+                  console.error("Error al cargar historial: ", error);
+              });
         }
 
         function clearHistory() {
-            if (confirm('¿Estás seguro de vaciar el registro de ventas?')) {
-                localStorage.removeItem('ranchero_sales_history');
-                loadSalesHistory();
+            if (confirm('¿Estás seguro de eliminar el registro de ventas completadas en la base de datos?')) {
+                db.collection("pedidos").where("status", "==", "completado").get().then((querySnapshot) => {
+                    let batch = db.batch();
+                    querySnapshot.forEach((doc) => {
+                        batch.delete(doc.ref);
+                    });
+                    return batch.commit();
+                }).then(() => {
+                    loadSalesHistory();
+                    alert('Historial vaciado con éxito.');
+                }).catch((error) => {
+                    console.error("Error al borrar historial: ", error);
+                });
             }
         }
 
-        // Iniciar la escucha de pedidos al cargar la página
+        // Iniciar la escucha de pedidos pendientes al cargar la página
         window.onload = () => {
             listenToFirebaseOrders();
         };
